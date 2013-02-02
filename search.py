@@ -100,26 +100,31 @@ def depthFirstSearch(problem):
     closed=set()
     closed.add(state)
     plan=[]
-    print problem.isGoalState(state)
     
     while not problem.isGoalState(state):
         if not fringe:
             print "FAILURE"
             return none
+        statePrev=state #store previous state
         stateFull=fringe.pop()
-        state=stateFull[0]
+        state=stateFull[0] #this is state now
         if problem.isGoalState(state):
             movedir=stateFull[1]
             plan.append(movedir)
             return plan
         if state not in closed:
             closed.add(state)
-            movedir=stateFull[1]
-            plan.append(movedir)
             print problem.getSuccessors(state)
-            successors=problem.getSuccessors(state)
-            for i in successors:
-                fringe.push(i)
+            #check if there are no successors: if so, go to prev state (current state will already be off fringe)
+            if problem.getSuccessors(state)=='false':
+                state=statePrev
+                badmove=plan.pop()
+            else:
+                successors=problem.getSuccessors(state)
+                movedir=stateFull[1]
+                plan.append(movedir)
+                for i in successors:
+                    fringe.push(i)
     
 
 def breadthFirstSearch(problem):
