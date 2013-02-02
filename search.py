@@ -71,6 +71,8 @@ def tinyMazeSearch(problem):
 
 def depthFirstSearch(problem):
     
+    from game import Directions
+    from pacman import GameState
 
     """
     Search the deepest nodes in the search tree first
@@ -80,42 +82,45 @@ def depthFirstSearch(problem):
 
     To get started, you might want to try some of these simple commands to
     understand the search problem that is being passed in:
-
+    """
+    '''
     print "Start:", problem.getStartState()
     print "Is the start a goal?", problem.isGoalState(problem.getStartState())
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
-    """
-    
-    "*** YOUR CODE HERE ***"
-    from game import directions
-    from searchAgents import SearchAgent
 
+    '''
+
+    
     fringe=util.Stack()
     state=problem.getStartState()
-    fringe.push(startState)
-    closed=[startState]
+    successors=problem.getSuccessors(state)
+    # debug later if getSuccessors returns an error (if there are no succ. to start)
+    for i in successors:
+        fringe.push(i)
+    closed=set()
+    closed.add(state)
+    plan=[]
+    print problem.isGoalState(state)
     
-    while problem.isGoalState(state)=='false':
+    while not problem.isGoalState(state):
         if not fringe:
             print "FAILURE"
-        state=fringe.pop()
-        if problem.isGoalState(state)=='true':
-            movedir=state[1]
-            plan=plan.append(movedir)
+            return none
+        stateFull=fringe.pop()
+        state=stateFull[0]
+        if problem.isGoalState(state):
+            movedir=stateFull[1]
+            plan.append(movedir)
             return plan
         if state not in closed:
-            closed.append(state)
-            movedir=state[1]
-            plan=plan.append(movedir)
+            closed.add(state)
+            movedir=stateFull[1]
+            plan.append(movedir)
+            print problem.getSuccessors(state)
             successors=problem.getSuccessors(state)
-            fringe.push(successors)
-
-    util.raiseNotDefined()
-'''
-    print "Start:", problem.getStartState()
-    print "Is the start a goal?", problem.isGoalState(problem.getStartState())
-    print "Start's successors:", problem.getSuccessors(problem.getStartState())
-'''
+            for i in successors:
+                fringe.push(i)
+    
 
 def breadthFirstSearch(problem):
     """
