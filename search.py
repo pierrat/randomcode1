@@ -99,28 +99,32 @@ def depthFirstSearch(problem):
         fringe.push(i)
     closed=set()
     closed.add(state)
-    plan=[]
     print problem.isGoalState(state)
-    
-    while not problem.isGoalState(state):
-        if not fringe:
-            print "FAILURE"
-            return none
-        stateFull=fringe.pop()
-        state=stateFull[0]
-        if problem.isGoalState(state):
-            movedir=stateFull[1]
-            plan.append(movedir)
-            return plan
-        if state not in closed:
-            closed.add(state)
-            movedir=stateFull[1]
-            plan.append(movedir)
-            print problem.getSuccessors(state)
-            successors=problem.getSuccessors(state)
-            for i in successors:
-                fringe.push(i)
-    
+
+    return DFShelper(problem, fringe, closed)
+
+def DFShelper(problem, fringe,closed):
+    if not fringe: #error
+        print "FAILURE"
+        return []
+    stateFull=fringe.pop()
+    state=stateFull[0]
+    if problem.isGoalState(state): #goal reached
+        return [stateFull[1]]
+    if state not in closed:
+        closed.add(state)
+        movedir=[stateFull[1]]
+        #plan.append(movedir)
+        print problem.getSuccessors(state)
+        successors=problem.getSuccessors(state)
+        if not successors: #no childern means dead end
+            return []
+        for i in successors:
+            fringe.push(i)
+            plan = DFShelper(problem, fringe, closed) #recursive call for each childern
+            if not (plan == []): #not dead end
+                return movedir + plan #solution found so add this move before the solution
+        return [] #none of the successors give a solution
 
 def breadthFirstSearch(problem):
     """
