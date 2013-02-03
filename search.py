@@ -72,7 +72,6 @@ def tinyMazeSearch(problem):
 def depthFirstSearch(problem):
     
     from game import Directions
-    from pacman import GameState
 
     """
     Search the deepest nodes in the search tree first
@@ -89,42 +88,46 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
 
     '''
-
+    
     
     fringe=util.Stack()
     state=problem.getStartState()
+    
+    plans={}
+    closed=set()
     successors=problem.getSuccessors(state)
-    # debug later if getSuccessors returns an error (if there are no succ. to start)
+    #plans dict gets some keys (state tuples) and values (directions)
     for i in successors:
         fringe.push(i)
-    closed=set()
+        plans[i[0]]=i[1]
     closed.add(state)
-    plan=[]
+    
     
     while not problem.isGoalState(state):
         if not fringe:
             print "FAILURE"
             return none
-        statePrev=state #store previous state
         stateFull=fringe.pop()
-        state=stateFull[0] #this is state now
+        state=stateFull[0]
+        #if this is the goal state, then return the value of the current state in the dict (winning plan)
         if problem.isGoalState(state):
             movedir=stateFull[1]
-            plan.append(movedir)
-            return plan
+            plan=plans[state]
+            return list(plan)
         if state not in closed:
             closed.add(state)
-            print problem.getSuccessors(state)
-            #check if there are no successors: if so, go to prev state (current state will already be off fringe)
-            if problem.getSuccessors(state)=='false':
-                state=statePrev
-                badmove=plan.pop()
-            else:
-                successors=problem.getSuccessors(state)
-                movedir=stateFull[1]
-                plan.append(movedir)
-                for i in successors:
-                    fringe.push(i)
+            successors=problem.getSuccessors(state)
+            #add successors to the fringe, and also create dict entries for them
+            #that depend on the plan of their parent node (the current state)
+            #and their own direction from the current state
+            for i in successors:
+                fringe.push(i)
+                if type(plans[state])==tuple:
+                    plans[i[0]]=plans[state]+(i[1],)
+                else:
+                    plans[i[0]]=plans[state],i[1]
+                    
+    util.raiseNotDefined()
     
 
 def breadthFirstSearch(problem):
