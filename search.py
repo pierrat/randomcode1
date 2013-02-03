@@ -123,12 +123,8 @@ def depthFirstSearch(problem):
                 fringe.push(i)
                 if type(plans[state])==tuple:
                     plans[i[0]]=plans[state]+(i[1],)
-                    print "tuple"
-                    print plans
                 else: #single case, plans[state] is a string
                     plans[i[0]]=plans[state],i[1]
-                    print type(plans[state])
-                    print plans
                     
     util.raiseNotDefined()
     
@@ -137,10 +133,9 @@ def breadthFirstSearch(problem):
     """
     Search the shallowest nodes in the search tree first.
     """
-    
-    """
+
     "*** YOUR CODE HERE ***"
-    """
+    
     from game import Directions
     
     fringe=util.Queue()
@@ -177,46 +172,56 @@ def breadthFirstSearch(problem):
                 fringe.push(i)
                 if type(plans[state])==tuple:
                     plans[i[0]]=plans[state]+(i[1],)
-                    print "tuple"
-                    print plans
                 else: #single case, plans[state] is a string
                     plans[i[0]]=plans[state],i[1]
-                    print type(plans[state])
-                    print plans
                     
     util.raiseNotDefined()
 
 def uniformCostSearch(problem):
     "Search the node of least total cost first. "
     "*** YOUR CODE HERE ***"
-    """
-    from game import directions
-    from searchAgents import SearchAgent
-
+    
+    from game import Directions
+    
     fringe=util.PriorityQueue()
     state=problem.getStartState()
-    fringe.push(startState)
-    closed=[startState]
     
-    while problem.isGoalState(state)=='false':
+    plans={}
+    closed=set()
+    successors=problem.getSuccessors(state)
+    #plans dict gets some keys (state tuples) and values (directions)
+    for i in successors:
+        #print [i[1]]
+        #print problem.getCostOfActions([i[1]])
+        fringe.push(i,problem.getCostOfActions([i[1]]))
+        plans[i[0]]=i[1]
+    closed.add(state)
+    
+    
+    while not problem.isGoalState(state):
         if not fringe:
             print "FAILURE"
-        state=fringe.pop()
-        if problem.isGoalState(state)=='true':
-            movedir=state[1]
-            plan=plan.append(movedir)
-            return plan
+            return none
+        stateFull=fringe.pop()
+        state=stateFull[0]
+        #if this is the goal state, then return the value of the current state in the dict (winning plan)
+        if problem.isGoalState(state):
+            movedir=stateFull[1]
+            plan=plans[state]
+            return list(plan)
         if state not in closed:
-            closed.append(state)
-            movedir=state[1]
-            plan=plan.append(movedir)
+            closed.add(state)
             successors=problem.getSuccessors(state)
-            costs=[costs[1] for costs in successors]
-            '''
-            how to acct for costs from beginnning??? ie cumulative costs
-            '''
-            fringe.push(successors)
-    """
+            #add successors to the fringe, and also create dict entries for them
+            #that depend on the plan of their parent node (the current state)
+            #and their own direction from the current state
+            for i in successors:
+                if type(plans[state])==tuple:
+                    plans[i[0]]=plans[state]+(i[1],)
+                else: #single case, plans[state] is a string
+                    plans[i[0]]=plans[state],i[1]
+                fringe.push(i,problem.getCostOfActions(list(plans[i[0]])))
+
     util.raiseNotDefined()
 
 def nullHeuristic(state, problem=None):
