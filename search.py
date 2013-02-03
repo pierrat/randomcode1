@@ -71,8 +71,6 @@ def tinyMazeSearch(problem):
 
 def depthFirstSearch(problem):
     
-    from game import Directions
-    from pacman import GameState
 
     """
     Search the deepest nodes in the search tree first
@@ -89,18 +87,20 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
 
     '''
-
+    from game import Directions
     
-    fringe=util.Stack()
+    fringe=util.Stack() 
     state=problem.getStartState()
+    
+    plans={}
+    closed=set()
     successors=problem.getSuccessors(state)
-    # debug later if getSuccessors returns an error (if there are no succ. to start)
+    #plans dict gets some keys (state tuples) and values (directions)
     for i in successors:
         fringe.push(i)
-    closed=set()
+        plans[i[0]]=i[1]
     closed.add(state)
-    plan=[]
-    print problem.isGoalState(state)
+    
     
     while not problem.isGoalState(state):
         if not fringe:
@@ -108,83 +108,120 @@ def depthFirstSearch(problem):
             return none
         stateFull=fringe.pop()
         state=stateFull[0]
+        #if this is the goal state, then return the value of the current state in the dict (winning plan)
         if problem.isGoalState(state):
             movedir=stateFull[1]
-            plan.append(movedir)
-            return plan
+            plan=plans[state]
+            return list(plan)
         if state not in closed:
             closed.add(state)
-            movedir=stateFull[1]
-            plan.append(movedir)
-            print problem.getSuccessors(state)
             successors=problem.getSuccessors(state)
+            #add successors to the fringe, and also create dict entries for them
+            #that depend on the plan of their parent node (the current state)
+            #and their own direction from the current state
             for i in successors:
                 fringe.push(i)
+                if type(plans[state])==tuple:
+                    plans[i[0]]=plans[state]+(i[1],)
+                else: #single case, plans[state] is a string
+                    plans[i[0]]=plans[state],i[1]
+                    
+    util.raiseNotDefined()
     
 
 def breadthFirstSearch(problem):
     """
     Search the shallowest nodes in the search tree first.
     """
-    "*** YOUR CODE HERE ***"
-    """
-    from game import directions
-    from searchAgents import SearchAgent
 
+    "*** YOUR CODE HERE ***"
+    
+    from game import Directions
+    
     fringe=util.Queue()
     state=problem.getStartState()
-    fringe.push(startState)
-    closed=[startState]
     
-    while problem.isGoalState(state)=='false':
+    plans={}
+    closed=set()
+    successors=problem.getSuccessors(state)
+    #plans dict gets some keys (state tuples) and values (directions)
+    for i in successors:
+        fringe.push(i)
+        plans[i[0]]=i[1]
+    closed.add(state)
+    
+    
+    while not problem.isGoalState(state):
         if not fringe:
             print "FAILURE"
-        state=fringe.pop()
-        if problem.isGoalState(state)=='true':
-            movedir=state[1]
-            plan=plan.append(movedir)
-            return plan
+            return none
+        stateFull=fringe.pop()
+        state=stateFull[0]
+        #if this is the goal state, then return the value of the current state in the dict (winning plan)
+        if problem.isGoalState(state):
+            movedir=stateFull[1]
+            plan=plans[state]
+            return list(plan)
         if state not in closed:
-            closed.append(state)
-            movedir=state[1]
-            plan=plan.append(movedir)
+            closed.add(state)
             successors=problem.getSuccessors(state)
-            fringe.push(successors)
-    
-    """
+            #add successors to the fringe, and also create dict entries for them
+            #that depend on the plan of their parent node (the current state)
+            #and their own direction from the current state
+            for i in successors:
+                fringe.push(i)
+                if type(plans[state])==tuple:
+                    plans[i[0]]=plans[state]+(i[1],)
+                else: #single case, plans[state] is a string
+                    plans[i[0]]=plans[state],i[1]
+                    
     util.raiseNotDefined()
 
 def uniformCostSearch(problem):
     "Search the node of least total cost first. "
     "*** YOUR CODE HERE ***"
-    """
-    from game import directions
-    from searchAgents import SearchAgent
-
+    
+    from game import Directions
+    
     fringe=util.PriorityQueue()
     state=problem.getStartState()
-    fringe.push(startState)
-    closed=[startState]
     
-    while problem.isGoalState(state)=='false':
+    plans={}
+    closed=set()
+    successors=problem.getSuccessors(state)
+    #plans dict gets some keys (state tuples) and values (directions)
+    for i in successors:
+        #print [i[1]]
+        #print problem.getCostOfActions([i[1]])
+        fringe.push(i,problem.getCostOfActions([i[1]]))
+        plans[i[0]]=i[1]
+    closed.add(state)
+    
+    
+    while not problem.isGoalState(state):
         if not fringe:
             print "FAILURE"
-        state=fringe.pop()
-        if problem.isGoalState(state)=='true':
-            movedir=state[1]
-            plan=plan.append(movedir)
-            return plan
+            return none
+        stateFull=fringe.pop()
+        state=stateFull[0]
+        #if this is the goal state, then return the value of the current state in the dict (winning plan)
+        if problem.isGoalState(state):
+            movedir=stateFull[1]
+            plan=plans[state]
+            return list(plan)
         if state not in closed:
-            closed.append(state)
-            movedir=state[1]
-            plan=plan.append(movedir)
+            closed.add(state)
             successors=problem.getSuccessors(state)
-            costs=[costs[1] for costs in successors]
-            '''
-            how to acct for costs from beginnning??? ie cumulative costs
-            '''
-            fringe.push(successors)
-    """
+            #add successors to the fringe, and also create dict entries for them
+            #that depend on the plan of their parent node (the current state)
+            #and their own direction from the current state
+            for i in successors:
+                if type(plans[state])==tuple:
+                    plans[i[0]]=plans[state]+(i[1],)
+                else: #single case, plans[state] is a string
+                    plans[i[0]]=plans[state],i[1]
+                fringe.push(i,problem.getCostOfActions(list(plans[i[0]])))
+
     util.raiseNotDefined()
 
 def nullHeuristic(state, problem=None):
