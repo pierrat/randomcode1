@@ -144,6 +144,7 @@ def breadthFirstSearch(problem):
     plans={}
     closed=set()
     successors=problem.getSuccessors(state)
+    print successors
     #plans dict gets some keys (state tuples) and values (directions)
     for i in successors:
         fringe.push(i)
@@ -175,7 +176,8 @@ def breadthFirstSearch(problem):
                 else: #single case, plans[state] is a string
                     plans[i[0]]=plans[state],i[1]
                     
-    util.raiseNotDefined()
+                    
+    #util.raiseNotDefined()
 
 def uniformCostSearch(problem):
     "Search the node of least total cost first. "
