@@ -269,6 +269,10 @@ class CornersProblem(search.SearchProblem):
         """
         Stores the walls, pacman's starting position and corners.
         """
+
+        # For display purposes
+        self._visited, self._visitedlist, self._expanded = {}, [], 0
+
         self.walls = startingGameState.getWalls()
         self.startingPosition = startingGameState.getPacmanPosition()
         top, right = self.walls.height-2, self.walls.width-2
@@ -279,16 +283,23 @@ class CornersProblem(search.SearchProblem):
         self._expanded = 0 # Number of search nodes expanded
 
         "*** YOUR CODE HERE ***"
+        #the starting state is a tuple of tuples
+        #the first tuple is a tuple containing all the corners, which will be subtracted out
+        #with each one visited. the second is the position of the pacman
+        self.startState = (self.corners, self.startingPosition) 
 
     def getStartState(self):
         "Returns the start state (in your state space, not the full Pacman state space)"
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.startState
+
 
     def isGoalState(self, state):
         "Returns whether this search state is a goal state of the problem"
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        #when there is no more corners left in the corners "checklist" we can say goal reached
+        return len(state[0]) == 0
+
 
     def getSuccessors(self, state):
         """
@@ -312,8 +323,19 @@ class CornersProblem(search.SearchProblem):
             #   hitsWall = self.walls[nextx][nexty]
 
             "*** YOUR CODE HERE ***"
+            x, y = state[1]
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            if not self.walls[nextx][nexty]:
+                nextMetaState = [] #nextMetaState contains the corners that still need to be visited
+                for corner in state[0]:
+                    if not (nextx,nexty) == corner: #a corner has not been reached so retain it
+                        nextMetaState.append(corner)
 
-        self._expanded += 1
+                cost = 1
+                successors.append( ( (tuple(nextMetaState),(nextx,nexty)), action, cost) )
+
+        #self._expanded += 1
         return successors
 
     def getCostOfActions(self, actions):

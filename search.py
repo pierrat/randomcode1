@@ -144,6 +144,7 @@ def breadthFirstSearch(problem):
     plans={}
     closed=set()
     successors=problem.getSuccessors(state)
+    print successors
     #plans dict gets some keys (state tuples) and values (directions)
     for i in successors:
         fringe.push(i)
