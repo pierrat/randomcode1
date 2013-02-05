@@ -369,7 +369,32 @@ def cornersHeuristic(state, problem):
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
     "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+    #the corner heuristic is the manhattan distance to the nearest corner plus the manhattan distance of the rest of the corners
+    metaState, pacposition = state
+    if len(metaState) == 0: #goal reached
+        return 0
+    listmetaState = list(metaState) #set of all the corners left to visit by the pacman
+    #find the nearest corner left to visit by manhattan distance
+    #then find the nearest corner left to visit from that corner by manhattan distance
+    #continue until all corners have been reached and sum the manhattan distances
+    returnheuristic = 0 #heuristic to be returned
+    positionOfInterest = pacposition #initial position is pacman's location
+    while not len(listmetaState) == 0: #continune loop until the set of corners to visit becomes empty
+        #initial condition is set to be the first corner
+        shortestdistance = util.manhattanDistance(positionOfInterest,listmetaState[0])
+        closestcorner = listmetaState[0] 
+        for cornerleft in listmetaState:
+            cornerdistance = util.manhattanDistance(positionOfInterest,cornerleft)
+            if cornerdistance < shortestdistance:
+                shortestdistance = cornerdistance
+                closetcorner = cornerleft
+        returnheuristic += shortestdistance #add this manhattan distance on
+        listmetaState.remove(closestcorner) #since we just "visited" the corner, remove it from our set to visit
+        positionOfInterest = closestcorner #now we want to look from the perspective of the closest corner next
+        
+    return returnheuristic
+
+    #return 0 # Default to trivial solution
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
