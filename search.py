@@ -108,11 +108,12 @@ def depthFirstSearch(problem):
             return none
         stateFull=fringe.pop()
         state=stateFull[0]
+        print state
         #if this is the goal state, then return the value of the current state in the dict (winning plan)
         if problem.isGoalState(state):
             movedir=stateFull[1]
             plan=plans[stateFull]
-            return list(plan)
+            return list(plan) 
         if state not in closed:
             closed.add(state)
             successors=problem.getSuccessors(state)
@@ -162,7 +163,11 @@ def breadthFirstSearch(problem):
         if problem.isGoalState(state):
             movedir=stateFull[1]
             plan=plans[stateFull]
-            return list(plan)
+            if type(plan)==str:
+                plan=[plan]
+            else:
+                plan=list(plan)
+            return plan #changed from list(plan) to just plan
         if state not in closed:
             closed.add(state)
             successors=problem.getSuccessors(state)

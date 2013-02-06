@@ -506,13 +506,59 @@ class ClosestDotSearchAgent(SearchAgent):
 
     def findPathToClosestDot(self, gameState):
         "Returns a path (a list of actions) to the closest dot, starting from gameState"
+        from search import breadthFirstSearch
         # Here are some useful elements of the startState
         startPosition = gameState.getPacmanPosition()
         food = gameState.getFood()
         walls = gameState.getWalls()
         problem = AnyFoodSearchProblem(gameState)
+        path = breadthFirstSearch(problem)
+        return path
+        
+        #return path
 
         "*** YOUR CODE HERE ***"
+        '''
+        fringe=util.PriorityQueue()
+        state=problem.getStartState()
+    
+        plans={}
+        closed=set()
+        successors=problem.getSuccessors(state)
+        #plans dict gets some keys (state tuples) and values (directions)
+        for i in successors:
+            fringe.push(i,problem.getCostOfActions([i[1]]))
+            plans[i]=i[1]
+        closed.add(state)
+    
+        
+        while not problem.isGoalState(state):
+            if not fringe:
+                print "FAILURE"
+                return none
+            stateFull=fringe.pop()
+            print stateFull
+            state=stateFull[0]
+            #if this is the goal state, then return the value of the current state in the dict (winning plan)
+            if problem.isGoalState(state):
+                movedir=stateFull[1]
+                plan=plans[stateFull]
+                return list(plan)
+            if state not in closed:
+                closed.add(state)
+                successors=problem.getSuccessors(state)
+                #add successors to the fringe, and also create dict entries for them
+                #that depend on the plan of their parent node (the current state)
+                #and their own direction from the current state
+                for i in successors:
+                    if type(plans[stateFull])==tuple:
+                        plans[i]=plans[stateFull]+(i[1],)
+                    else: #single case, plans[state] is a string
+                        plans[i]=plans[stateFull],i[1]
+                    fringe.push(i,problem.getCostOfActions(list(plans[i])))
+
+        '''
+
         util.raiseNotDefined()
 
 class AnyFoodSearchProblem(PositionSearchProblem):
@@ -547,9 +593,22 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         that will complete the problem definition.
         """
         x,y = state
+        isGoal=self.food[x][y]
 
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        '''
+        foodTuples=self.food.asList()
+        dists=util.Counter()
+        for food in foodTuples:
+            distance=util.manhattanDistance(state,food)
+            dists[food]=distance
+        shortestDistance=min(dists.values())
+        closestFood=dists[shortestDistance]
+        isGoal=state==closestFood
+        '''
+
+        return isGoal
+
+        #util.raiseNotDefined()
 
 ##################
 # Mini-contest 1 #
@@ -559,6 +618,19 @@ class ApproximateSearchAgent(Agent):
     "Implement your contest entry here.  Change anything but the class name."
 
     def registerInitialState(self, state):
+        self.actions = []
+        currentState = state
+        while(currentState.getFood().count() > 0):
+            nextPathSegment = self.findPathToClosestDot(currentState) # The missing piece
+            self.actions += nextPathSegment
+            for action in nextPathSegment:
+                legal = currentState.getLegalActions()
+                if action not in legal:
+                    t = (str(action), str(currentState))
+                    raise Exception, 'findPathToClosestDot returned an illegal move: %s!\n%s' % t
+                currentState = currentState.generateSuccessor(0, action)
+        self.actionIndex = 0
+        print 'Path found with cost %d.' % len(self.actions)
         "This method is called before any moves are made."
         "*** YOUR CODE HERE ***"
 
