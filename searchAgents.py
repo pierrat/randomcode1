@@ -120,7 +120,7 @@ class SearchAgent(Agent):
         if 'actionIndex' not in dir(self): self.actionIndex = 0
         i = self.actionIndex
         self.actionIndex += 1
-        print self.actions
+        #print self.actions
         if i < len(self.actions):
             return self.actions[i]
         else:
@@ -484,12 +484,16 @@ def foodHeuristic(state, problem):
     Subsequent calls to this heuristic can access problem.heuristicInfo['wallCount']
      """
     position, foodGrid = state
+<<<<<<< HEAD
     "*** YOUR CODE HERE ***"
 
+=======
+>>>>>>> noChanges
     #the food heuristic is the manhattan distance to the nearest food plus the manhattan distance of the rest of the foods
     listmetaState = foodGrid.asList() #list of all the food left to visit by the pacman
     if len(listmetaState) == 0: #goal reached
         return 0
+<<<<<<< HEAD
     """
     ****code that did not work****
     #find the nearest food left to visit by manhattan distance
@@ -638,17 +642,28 @@ def foodHeuristic(state, problem):
         return max(longestdistance, len(listmetaState))       
     """
     if len(listmetaState) > 1:
+=======
+    elif len(listmetaState) > 1:
+>>>>>>> noChanges
         #find the foods with the furthest distance from each other
         longestdistance = 0
         twofurthestfoods = [listmetaState[0],listmetaState[0]]
         for i in listmetaState:
             for j in listmetaState:
+<<<<<<< HEAD
                 fooddistance = mazeDistance(i,j,problem.startingGameState)
+=======
+                fooddistance = util.manhattanDistance(i,j)
+>>>>>>> noChanges
                 if fooddistance > longestdistance:
                     longestdistance = fooddistance
                     twofurthestfoods = [i,j]
         #find the pacman's distance to the closer of the two foods found and add it to the longest distance
+<<<<<<< HEAD
         minDist = min(mazeDistance(twofurthestfoods[0],position,problem.startingGameState),mazeDistance(twofurthestfoods[1],position,problem.startingGameState))
+=======
+        minDist = min(util.manhattanDistance(twofurthestfoods[0],position),util.manhattanDistance(twofurthestfoods[1],position))
+>>>>>>> noChanges
         return max(longestdistance + minDist, len(listmetaState))
     else: #only one food left
         return util.manhattanDistance(position, listmetaState[0])
