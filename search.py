@@ -127,7 +127,7 @@ def depthFirstSearch(problem):
                     plans[i]=plans[stateFull],i[1]
                 fringe.push(i)
                                     
-    util.raiseNotDefined()
+    return []
     
 
 def breadthFirstSearch(problem):
@@ -145,13 +145,11 @@ def breadthFirstSearch(problem):
     plans={}
     closed=set()
     successors=problem.getSuccessors(state)
-    print successors
     #plans dict gets some keys (state tuples) and values (directions)
     for i in successors:
         fringe.push(i)
         plans[i]=i[1]
     closed.add(state)
-    
     
     while not problem.isGoalState(state):
         if not fringe:
@@ -171,6 +169,7 @@ def breadthFirstSearch(problem):
         if state not in closed:
             closed.add(state)
             successors=problem.getSuccessors(state)
+            #print successors
             #add successors to the fringe, and also create dict entries for them
             #that depend on the plan of their parent node (the current state)
             #and their own direction from the current state
@@ -181,7 +180,7 @@ def breadthFirstSearch(problem):
                     plans[i]=plans[stateFull],i[1]
                 fringe.push(i)
 
-    util.raiseNotDefined()
+    return []
 
 def uniformCostSearch(problem):
     "Search the node of least total cost first. "
@@ -226,7 +225,7 @@ def uniformCostSearch(problem):
                     plans[i]=plans[stateFull],i[1]
                 fringe.push(i,problem.getCostOfActions(list(plans[i])))
 
-    util.raiseNotDefined()
+    return []
 
 def nullHeuristic(state, problem=None):
     """
@@ -277,7 +276,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
                     plans[i]=plans[stateFull],i[1]
                 fringe.push(i,problem.getCostOfActions(list(plans[i]))+(heuristic(i[0],problem)))
 
-    util.raiseNotDefined()
+    return []
 
 
 # Abbreviations

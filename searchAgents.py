@@ -475,17 +475,183 @@ def foodHeuristic(state, problem):
     to get a list of food coordinates instead.
 
     If you want access to info like walls, capsules, etc., you can query the problem.
-    For example, problem.walls gives you a Grid of where the walls are.
+     For example, problem.walls gives you a Grid of where the walls are.
 
     If you want to *store* information to be reused in other calls to the heuristic,
     there is a dictionary called problem.heuristicInfo that you can use. For example,
-    if you only want to count the walls once and store that value, try:
+     if you only want to count the walls once and store that value, try:
       problem.heuristicInfo['wallCount'] = problem.walls.count()
     Subsequent calls to this heuristic can access problem.heuristicInfo['wallCount']
-    """
+     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    return 0
+
+    #the food heuristic is the manhattan distance to the nearest food plus the manhattan distance of the rest of the foods
+    listmetaState = foodGrid.asList() #list of all the food left to visit by the pacman
+    if len(listmetaState) == 0: #goal reached
+        return 0
+    """
+    ****code that did not work****
+    #find the nearest food left to visit by manhattan distance
+    #then find the nearest food left to visit from that food by manhattan distance
+    #continue until all food have been reached and sum the manhattan distances
+    returnheuristic = 0 #heuristic to be returned
+    positionOfInterest = position #initial position is pacman's location
+    while not len(listmetaState) == 0: #continune loop until the list of food to visit becomes empty
+        #initial condition is set to be the first food
+        shortestdistance = util.manhattanDistance(positionOfInterest,listmetaState[0])
+        closestfood = listmetaState[0] 
+        for foodleft in listmetaState:
+            fooddistance = util.manhattanDistance(positionOfInterest,foodleft)
+            if fooddistance < shortestdistance:
+                shortestdistance = fooddistance
+                closetfood = foodleft
+        returnheuristic += shortestdistance #add this manhattan distance on
+        listmetaState.remove(closestfood) #since we just "visited" the food, remove it from our list to visit
+        positionOfInterest = closestfood #now we want to look from the perspective of the closest food next
+         
+    return returnheuristic
+
+    if len(listmetaState) > 2:
+        #find the foods with the furthest distance from each other
+        longestdistance = 0
+        threefurthestfoods = [listmetaState[0],listmetaState[0],listmetaState[0]]
+         for i in listmetaState:
+            for j in listmetaState:
+                if j == i:
+                    break
+                for k in listmetaState:
+                    if k==i or k==j:
+                        break
+                    ij = util.manhattanDistance(i,j)
+                    jk = util.manhattanDistance(j,k)
+                    ik = util.manhattanDistance(i,k)
+                    fooddistance = 0
+                    whichpath = []
+                    if ij == jk and ij > ik:
+                        print  i + j + k
+                        if util.manhattanDistance(i,position) < util.manhattanDistance(j,position):
+                            fooddistance = jk + ik
+                            whichpath = [i,k,j]
+                        else:
+                            fooddistance = ij + ik
+                            whichpath = [j,i,k]
+                    elif jk == ik and jk > ij:
+                        print i + j + k
+                        if util.manhattanDistance(i,position) < util.manhattanDistance(k,position):
+                            fooddistance = ij + jk
+                            whichpath = [i,j,k]
+                         else:
+                            fooddistance = ij + ik
+                            whichpath = [k,i,j]
+                    elif ij == ik and ij > jk:
+                        print i + j + k
+                        if util.manhattanDistance(j,position) < util.manhattanDistance(i,position):
+                            fooddistance = ij + jk
+                            whichpath = [j,k,i]
+                        else:
+                            fooddistance = jk + ik
+                            whichpath = [k,j,i]
+                    elif ij > max(jk,ik): #path goes from i->k->j
+                        fooddistance = jk + ik
+                        whichpath = [i,k,j]
+                    elif jk > max(ij, ik):
+                        fooddistance = ij + ik
+                        whichpath = [j,i,k]
+                    else: #ik > max(ij, jk)
+                        fooddistance = ij + jk
+                        whichpath = [i,j,k]
+                    
+                    fringe=util.PriorityQueue()
+                    stateFull=((i,j,k),position,())                    
+                    plans={}
+                    closed=set()
+                    successors=stateFull[0]
+                    minimumpath = 0
+                    plan = []
+                    #plans dict gets some keys (state tuples) and values (directions)
+                     for node in successors:
+                        temp = list(stateFull[0])
+                        temp.remove(node)
+                        nextState = (tuple(temp), node, (node))
+                        fringe.push(nextState,util.manhattanDistance(node, stateFull[1]))
+                        #print (node, )
+                        plans[nextState]= (position,node)
+                        #print plans[nextState]
+                    closed.add(stateFull)
+                                        
+                    while not len(stateFull[0]) == 0:
+                        if not fringe:
+                            print "error"
+                            break
+                        #print "heap"
+                        #print fringe.heap
+                        stateFull=fringe.pop()
+                        state=stateFull[0]
+                        #print "statefull"
+                        #print stateFull
+                        #if this is the goal state, then return the value of the current state in the dict (winning plan)
+                        if len(stateFull[0]) == 0:
+                            movedir=stateFull[1]
+                            plan=list(plans[stateFull])
+                            paststep = position
+                            minimumpath = 0
+                            for step in plan:
+                                minimumpath += util.manhattanDistance(paststep,step)
+                                 paststep = step
+                            break
+                        if stateFull not in closed:
+                            closed.add(stateFull)
+                            successors=stateFull[0]
+                            #add successors to the fringe, and also create dict entries for them
+                            #that depend on the plan of their parent node (the current state)
+                            #and their own direction from the current state
+                            for node in successors:
+                                temp = list(stateFull[0])
+                                #print node
+                                temp.remove(node)
+                                nextState = (tuple(temp), node, stateFull[2]+(node,))
+                                if type(plans[stateFull])==tuple:
+                                    plans[nextState]=plans[stateFull]+(node,)
+                                else: #single case, plans[state] is a string
+                                    plans[nextState]= plans[stateFull],node
+                                minimumpath = 0
+                                paststep = position
+                                for step in plans[nextState]:
+                                    #print step
+                                    minimumpath += util.manhattanDistance(paststep,step)
+                                    paststep = step
+                                #print "node"
+                                #print nextState
+                                #print minimumpath
+                                fringe.push(nextState ,minimumpath)
+
+                    if minimumpath > longestdistance:
+                        longestdistance = minimumpath
+                        threefurthestfoods = plan
+                        #threefurthestfoods = whichpath
+        #find the pacman's distance to the closer of the two foods found and add it to the longest distance
+        #minDist = min(util.manhattanDistance(threefurthestfoods[0],position),util.manhattanDistance(threefurthestfoods[2],position))
+        #print longestdistance
+        #print threefurthestfoods
+        #print listmetaState
+        return max(longestdistance, len(listmetaState))       
+    """
+    if len(listmetaState) > 1:
+        #find the foods with the furthest distance from each other
+        longestdistance = 0
+        twofurthestfoods = [listmetaState[0],listmetaState[0]]
+        for i in listmetaState:
+            for j in listmetaState:
+                fooddistance = mazeDistance(i,j,problem.startingGameState)
+                if fooddistance > longestdistance:
+                    longestdistance = fooddistance
+                    twofurthestfoods = [i,j]
+        #find the pacman's distance to the closer of the two foods found and add it to the longest distance
+        minDist = min(mazeDistance(twofurthestfoods[0],position,problem.startingGameState),mazeDistance(twofurthestfoods[1],position,problem.startingGameState))
+        return max(longestdistance + minDist, len(listmetaState))
+    else: #only one food left
+        return util.manhattanDistance(position, listmetaState[0])
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
